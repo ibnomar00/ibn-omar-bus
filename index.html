@@ -1,1 +1,801 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>نظام حضور الحافلات - ابن عمر</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --rhino: #2A3E69;
+      --rhino-light: #3a5490;
+      --peru: #C98C3C;
+      --peru-light: #e0a850;
+      --pampas: #F6F4EC;
+      --success: #1a7a4a;
+      --success-light: #e8f5ee;
+      --danger: #c0392b;
+      --danger-light: #fdf0ef;
+      --white: #ffffff;
+      --shadow: 0 8px 32px rgba(42,62,105,0.13);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--pampas);
+      font-family: 'Tajawal', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(135deg, var(--rhino) 0%, var(--rhino-light) 100%);
+      color: white;
+      padding: 18px 20px 14px;
+      text-align: center;
+      border-bottom: 4px solid var(--peru);
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -40px; left: -40px;
+      width: 160px; height: 160px;
+      background: rgba(201,140,60,0.08);
+      border-radius: 50%;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; right: -20px;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+    .header img { width: 70px; margin-bottom: 8px; border-radius: 12px; }
+    .header h1 { font-size: 1.3em; font-weight: 800; letter-spacing: 0.3px; }
+    .header p { font-size: 0.82em; opacity: 0.8; margin-top: 2px; }
+
+    /* ===== STEPS INDICATOR ===== */
+    .steps-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      padding: 14px 20px;
+      background: white;
+      border-bottom: 1px solid #e8e4d8;
+    }
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+    .step-dot {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #e0ddd4;
+      color: #999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85em;
+      transition: all 0.3s;
+    }
+    .step-label { font-size: 0.68em; color: #999; font-weight: 500; text-align: center; }
+    .step.active .step-dot { background: var(--peru); color: white; }
+    .step.active .step-label { color: var(--peru); font-weight: 700; }
+    .step.done .step-dot { background: var(--success); color: white; }
+    .step.done .step-label { color: var(--success); }
+    .step-line {
+      flex: 0.5;
+      height: 2px;
+      background: #e0ddd4;
+      align-self: center;
+      margin-bottom: 20px;
+      transition: background 0.3s;
+    }
+    .step-line.done { background: var(--success); }
+
+    /* ===== MAIN CONTENT ===== */
+    .container { padding: 20px; max-width: 480px; margin: auto; width: 100%; flex: 1; }
+
+    /* ===== CARD ===== */
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .card-header {
+      background: linear-gradient(90deg, var(--rhino) 0%, var(--rhino-light) 100%);
+      color: white;
+      padding: 14px 18px;
+      font-size: 1em;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-body { padding: 18px; }
+
+    /* ===== QR SCANNER ===== */
+    #scannerSection { }
+    #reader {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 3px solid var(--peru) !important;
+    }
+    #reader video { border-radius: 10px; }
+    .scanner-hint {
+      text-align: center;
+      color: #777;
+      font-size: 0.85em;
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+
+    /* ===== BUS INFO ===== */
+    #busInfoSection { display: none; }
+    .info-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0ece0;
+      gap: 10px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-icon { font-size: 1.3em; width: 32px; text-align: center; }
+    .info-label { font-size: 0.78em; color: #999; font-weight: 500; }
+    .info-value { font-size: 1em; color: var(--rhino); font-weight: 700; }
+
+    .location-badge {
+      background: var(--success-light);
+      color: var(--success);
+      border: 1px solid #b2dfcb;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.9em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    /* ===== SIGNATURE PAD ===== */
+    #signatureSection { display: none; }
+    .sig-container {
+      position: relative;
+      border: 2.5px dashed var(--peru);
+      border-radius: 14px;
+      background: #fdfcf8;
+      overflow: hidden;
+      touch-action: none;
+    }
+    #signaturePad {
+      display: block;
+      width: 100%;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .sig-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: rgba(42,62,105,0.07);
+      font-size: 1.1em;
+      font-weight: 800;
+      white-space: nowrap;
+      pointer-events: none;
+      letter-spacing: 1px;
+    }
+    .sig-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn-clear {
+      flex: 1;
+      background: #f5f0e8;
+      color: var(--rhino);
+      border: 1.5px solid #ddd8c8;
+      padding: 11px;
+      border-radius: 10px;
+      font-family: 'Tajawal', sans-serif;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-clear:hover { background: #ede8da; }
+
+    /* ===== BUTTONS ===== */
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--peru) 0%, var(--peru-light) 100%);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 13px;
+      font-family: 'Tajawal', sans-serif;
+      font-weight: 800;
+      font-size: 1.1em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(201,140,60,0.35);
+      margin-top: 16px;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,140,60,0.45); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .btn-success {
+      width: 100%;
+      background: linear-gradient(135deg, #1a7a4a 0%, #27ae60 100%);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 13px;
+      font-family: 'Tajawal', sans-serif;
+      font-weight: 800;
+      font-size: 1.1em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(26,122,74,0.35);
+      margin-top: 10px;
+    }
+    .btn-success:hover { transform: translateY(-1px); }
+    .btn-success:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ===== SUCCESS SCREEN ===== */
+    #successSection { display: none; text-align: center; padding: 30px 20px; }
+    .success-icon { font-size: 5em; animation: popIn 0.5s ease; }
+    @keyframes popIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .success-title { color: var(--success); font-size: 1.5em; font-weight: 800; margin: 14px 0 8px; }
+    .success-sub { color: #666; font-size: 0.9em; line-height: 1.6; }
+    .success-time {
+      display: inline-block;
+      background: var(--success-light);
+      color: var(--success);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 0.85em;
+      font-weight: 600;
+      margin-top: 14px;
+    }
+    .btn-restart {
+      background: var(--rhino);
+      color: white;
+      border: none;
+      padding: 13px 30px;
+      border-radius: 12px;
+      font-family: 'Tajawal', sans-serif;
+      font-weight: 700;
+      font-size: 1em;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.2s;
+    }
+    .btn-restart:hover { background: var(--rhino-light); }
+
+    /* ===== ERROR / STATUS ===== */
+    .status-msg {
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.88em;
+      font-weight: 600;
+      margin-top: 14px;
+      display: none;
+      line-height: 1.5;
+    }
+    .status-msg.error { background: var(--danger-light); color: var(--danger); border: 1px solid #f5c6c0; }
+    .status-msg.info { background: #eaf3ff; color: #1a5fa8; border: 1px solid #b3d4f5; }
+    .status-msg.show { display: block; }
+
+    /* ===== SPINNER ===== */
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 3px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.75em;
+      padding: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <img src="https://drive.google.com/thumbnail?id=15lbxlFlJwGPu4SvMuVYa2JrxFFHBtFko&sz=w500" 
+       alt="شعار المدرسة"
+       onerror="this.style.display='none'">
+  <h1>🚌 نظام حضور الحافلات الذكي</h1>
+  <p>مدرسة عبدالله بن عمر</p>
+</div>
+
+<!-- STEPS BAR -->
+<div class="steps-bar" id="stepsBar">
+  <div class="step active" id="step1">
+    <div class="step-dot">1</div>
+    <div class="step-label">مسح QR</div>
+  </div>
+  <div class="step-line" id="line1"></div>
+  <div class="step" id="step2">
+    <div class="step-dot">2</div>
+    <div class="step-label">التحقق</div>
+  </div>
+  <div class="step-line" id="line2"></div>
+  <div class="step" id="step3">
+    <div class="step-dot">3</div>
+    <div class="step-label">التوقيع</div>
+  </div>
+  <div class="step-line" id="line3"></div>
+  <div class="step" id="step4">
+    <div class="step-dot">✓</div>
+    <div class="step-label">تم</div>
+  </div>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="container">
+
+  <!-- STEP 1: SCANNER -->
+  <div id="scannerSection">
+    <div class="card">
+      <div class="card-header">📷 امسح رمز QR الخاص بالحافلة</div>
+      <div class="card-body">
+        <div id="reader"></div>
+        <p class="scanner-hint">وجّه الكاميرا نحو رمز QR المثبت على الحافلة<br>سيتم المسح تلقائياً</p>
+      </div>
+    </div>
+    <div id="scanStatus" class="status-msg"></div>
+  </div>
+
+  <!-- STEP 2: BUS INFO + LOCATION -->
+  <div id="busInfoSection">
+    <div class="card">
+      <div class="card-header">🚌 تفاصيل الحافلة</div>
+      <div class="card-body">
+        <div class="info-row">
+          <div class="info-icon">👤</div>
+          <div>
+            <div class="info-label">اسم السائق</div>
+            <div class="info-value" id="dName">—</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-icon">🔢</div>
+          <div>
+            <div class="info-label">رقم الحافلة</div>
+            <div class="info-value" id="bId">—</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-icon">🪪</div>
+          <div>
+            <div class="info-label">رقم اللوحة</div>
+            <div class="info-value" id="pNum">—</div>
+          </div>
+        </div>
+        <div class="location-badge">
+          <span>✅</span>
+          <span>تم التحقق: الحافلة داخل نطاق المدرسة</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="goToSignature()">
+      ✍️ المتابعة للتوقيع
+    </button>
+    <div id="busStatus" class="status-msg"></div>
+  </div>
+
+  <!-- STEP 3: SIGNATURE -->
+  <div id="signatureSection">
+    <div class="card">
+      <div class="card-header">✍️ توقيع السائق</div>
+      <div class="card-body">
+        <p style="color:#666; font-size:0.88em; margin-bottom:12px; line-height:1.6;">
+          يرجى التوقيع بخط اليد في المربع أدناه للتأكيد على تسجيل الحضور
+        </p>
+        <div class="sig-container">
+          <canvas id="signaturePad" height="200"></canvas>
+          <div class="sig-watermark">توقيع السائق</div>
+        </div>
+        <div class="sig-actions">
+          <button class="btn-clear" onclick="clearSignature()">🗑️ مسح التوقيع</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-success" id="submitBtn" onclick="finalSubmit()">
+      ✅ تأكيد الحضور وإرسال التوقيع
+    </button>
+    <div id="sigStatus" class="status-msg"></div>
+  </div>
+
+  <!-- STEP 4: SUCCESS -->
+  <div id="successSection">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">تم تسجيل الحضور بنجاح!</div>
+    <div class="success-sub">
+      تم تسجيل حضور الحافلة وتوقيع السائق في سجلات المدرسة
+    </div>
+    <div class="success-time" id="successTime"></div>
+    <br>
+    <button class="btn-restart" onclick="restartApp()">🔄 تسجيل حافلة أخرى</button>
+  </div>
+
+</div>
+
+<div class="footer">نظام ابن عمر الذكي © 2025</div>
+
+<script>
+// =============================================
+// الإعدادات - عدّل هذه القيمة فقط
+// =============================================
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2nwirYJPTSzhDwz06wvt_6TsMFhSGs2ZeyYJ7mekJ5x86Xy1V5ObTcme9R2i9QpnP0A/exec";
+// استبدل YOUR_DEPLOYMENT_ID بمعرف نشر Web App الخاص بك
+
+// =============================================
+// المتغيرات العامة
+// =============================================
+let html5QrCode = null;
+let lastBusData = null;
+let signaturePad = null;
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+let signatureEmpty = true;
+
+// =============================================
+// بدء التطبيق
+// =============================================
+window.onload = function() {
+  initSignaturePad();
+  startScanner();
+};
+
+// =============================================
+// 1. QR SCANNER
+// =============================================
+async function startScanner() {
+  showStatus('scanStatus', 'info', '📷 جاري تشغيل الكاميرا...');
+  
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error("المتصفح لا يدعم الكاميرا. استخدم Chrome أو Safari.");
+    }
+
+    html5QrCode = new Html5Qrcode("reader");
+
+    const config = {
+      fps: 15,
+      qrbox: { width: 250, height: 250 },
+      aspectRatio: 1.0,
+      videoConstraints: { facingMode: "environment" }
+    };
+
+    await html5QrCode.start(
+      { facingMode: "environment" },
+      config,
+      onQRSuccess
+    ).catch(async () => {
+      await html5QrCode.start({ facingMode: "user" }, config, onQRSuccess);
+    });
+
+    hideStatus('scanStatus');
+
+  } catch (err) {
+    let msg = err.message || "خطأ غير معروف";
+    if (msg.includes("NotAllowed") || msg.includes("Permission")) {
+      msg = "يجب السماح للمتصفح باستخدام الكاميرا. تحقق من إعدادات المتصفح.";
+    }
+    showStatus('scanStatus', 'error', '⚠️ ' + msg);
+  }
+}
+
+async function onQRSuccess(decodedText) {
+  if (html5QrCode) {
+    try { await html5QrCode.stop(); } catch(e) {}
+  }
+  showStatus('scanStatus', 'info', '📡 جاري التحقق من الموقع والحافلة...');
+  verifyLocationAndBus(decodedText);
+}
+
+// =============================================
+// 2. GEOLOCATION + VERIFY
+// =============================================
+function verifyLocationAndBus(busId) {
+  if (!navigator.geolocation) {
+    showStatus('scanStatus', 'error', '⚠️ المتصفح لا يدعم خدمة الموقع.');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => fetchBusData(busId, pos.coords.latitude, pos.coords.longitude),
+    err => {
+      showStatus('scanStatus', 'error', '📍 يجب تفعيل خدمة الموقع (GPS) للمتابعة.');
+      startScanner(); // إعادة المسح
+    },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+  );
+}
+
+async function fetchBusData(busId, lat, lng) {
+  try {
+    const params = new URLSearchParams({
+      action: 'processBusCheckIn',
+      busId: busId,
+      lat: lat,
+      lng: lng
+    });
+
+    const res = await fetch(`${APPS_SCRIPT_URL}?${params}`);
+    const data = await res.json();
+
+    if (data.success) {
+      lastBusData = data.bus;
+      showBusInfo(data.bus);
+    } else {
+      showStatus('scanStatus', 'error', '❌ ' + (data.message || "فشل التحقق."));
+      setTimeout(startScanner, 3000);
+    }
+  } catch (err) {
+    showStatus('scanStatus', 'error', '🔌 تعذر الاتصال بالخادم. تحقق من رابط Apps Script.');
+    setTimeout(startScanner, 4000);
+  }
+}
+
+function showBusInfo(bus) {
+  document.getElementById('dName').textContent = bus.driver || '—';
+  document.getElementById('bId').textContent = bus.id || '—';
+  document.getElementById('pNum').textContent = bus.plate || '—';
+
+  document.getElementById('scannerSection').style.display = 'none';
+  document.getElementById('busInfoSection').style.display = 'block';
+  setStep(2);
+}
+
+// =============================================
+// 3. GO TO SIGNATURE
+// =============================================
+function goToSignature() {
+  document.getElementById('busInfoSection').style.display = 'none';
+  document.getElementById('signatureSection').style.display = 'block';
+  setStep(3);
+  resizeCanvas();
+}
+
+// =============================================
+// 4. SIGNATURE PAD
+// =============================================
+function initSignaturePad() {
+  const canvas = document.getElementById('signaturePad');
+  const ctx = canvas.getContext('2d');
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    if (e.touches) {
+      return {
+        x: (e.touches[0].clientX - rect.left) * scaleX,
+        y: (e.touches[0].clientY - rect.top) * scaleY
+      };
+    }
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    isDrawing = true;
+    const pos = getPos(e);
+    lastX = pos.x; lastY = pos.y;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+  }
+
+  function draw(e) {
+    e.preventDefault();
+    if (!isDrawing) return;
+    const pos = getPos(e);
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    lastX = pos.x; lastY = pos.y;
+    signatureEmpty = false;
+  }
+
+  function endDraw(e) {
+    e.preventDefault();
+    isDrawing = false;
+    ctx.beginPath();
+  }
+
+  // Mouse events
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('mouseleave', endDraw);
+
+  // Touch events
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', endDraw, { passive: false });
+
+  signaturePad = { canvas, ctx };
+}
+
+function resizeCanvas() {
+  const canvas = document.getElementById('signaturePad');
+  const container = canvas.parentElement;
+  const w = container.clientWidth;
+  canvas.width = w;
+  canvas.height = 200;
+  clearSignature();
+}
+
+function clearSignature() {
+  const { canvas, ctx } = signaturePad;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  signatureEmpty = true;
+}
+
+function getSignatureDataURL() {
+  return signaturePad.canvas.toDataURL('image/png');
+}
+
+// =============================================
+// 5. FINAL SUBMIT
+// =============================================
+async function finalSubmit() {
+  if (signatureEmpty) {
+    showStatus('sigStatus', 'error', '✏️ يرجى التوقيع أولاً قبل الإرسال.');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> جاري إرسال البيانات...';
+  hideStatus('sigStatus');
+
+  try {
+    const sigImage = getSignatureDataURL();
+    const payload = {
+      action: 'confirmBusAttendance',
+      bus: lastBusData,
+      signature: sigImage
+    };
+
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (data.success !== false) {
+      showSuccessScreen();
+    } else {
+      showStatus('sigStatus', 'error', '❌ ' + (data.message || "فشل الإرسال."));
+      btn.disabled = false;
+      btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
+    }
+
+  } catch (err) {
+    showStatus('sigStatus', 'error', '🔌 تعذر الاتصال بالخادم. حاول مجدداً.');
+    btn.disabled = false;
+    btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
+  }
+}
+
+function showSuccessScreen() {
+  document.getElementById('signatureSection').style.display = 'none';
+  document.getElementById('successSection').style.display = 'block';
+  setStep(4);
+
+  const now = new Date();
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' };
+  document.getElementById('successTime').textContent = now.toLocaleDateString('ar-SA', opts);
+}
+
+function restartApp() {
+  lastBusData = null;
+  signatureEmpty = true;
+  clearSignature();
+
+  document.getElementById('successSection').style.display = 'none';
+  document.getElementById('signatureSection').style.display = 'none';
+  document.getElementById('busInfoSection').style.display = 'none';
+  document.getElementById('scannerSection').style.display = 'block';
+
+  hideStatus('scanStatus');
+  hideStatus('busStatus');
+  hideStatus('sigStatus');
+  setStep(1);
+  startScanner();
+}
+
+// =============================================
+// HELPERS
+// =============================================
+function setStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const s = document.getElementById('step' + i);
+    s.classList.remove('active', 'done');
+    if (i < n) s.classList.add('done');
+    else if (i === n) s.classList.add('active');
+
+    if (i < 4) {
+      const line = document.getElementById('line' + i);
+      if (line) {
+        line.classList.toggle('done', i < n);
+      }
+    }
+  }
+}
+
+function showStatus(id, type, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'status-msg ' + type + ' show';
+  el.innerHTML = msg;
+}
+
+function hideStatus(id) {
+  const el = document.getElementById(id);
+  if (el) el.className = 'status-msg';
+}
+
+window.addEventListener('resize', () => {
+  if (document.getElementById('signatureSection').style.display !== 'none') {
+    resizeCanvas();
+  }
+});
+</script>
+</body>
+</html>
 
