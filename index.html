@@ -718,26 +718,51 @@ async function finalSubmit() {
   btn.innerHTML = '<span class="spinner"></span> جاري إرسال البيانات...';
 
   try {
-    const sigImage = getSignatureDataURL();
-    
-    // إرسال البيانات كنموذج خفي (بسبب قيود جوجل على POST JSON)
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = APPS_SCRIPT_URL;
-    form.target = 'hidden_iframe'; // سنحتاج لإضافة iframe خفي في الصفحة
+   const sigImage = getSignatureDataURL();
 
-    const inputAction = document.createElement('input');
-    inputAction.name = 'action';
-    inputAction.value = 'confirmBusAttendance';
-    form.appendChild(inputAction);
+   const form = document.createElement('form');
+   form.method = 'POST';
+   form.action = APPS_SCRIPT_URL;
+   form.target = 'hidden_iframe';
 
-    const inputData = document.createElement('input');
-    inputData.name = 'data';
-    inputData.value = JSON.stringify({ bus: lastBusData, signature: sigImage });
-    form.appendChild(inputData);
+// 1. الإجراء
+const inputAction = document.createElement('input');
+inputAction.name = 'action';
+inputAction.value = 'confirmBusAttendance';
+form.appendChild(inputAction);
 
-    document.body.appendChild(form);
-    form.submit();
+// 2. رقم الحافلة
+const inputId = document.createElement('input');
+inputId.name = 'busId'; // مطابق لما في doPost
+inputId.value = lastBusData.id || '';
+form.appendChild(inputId);
+
+// 3. اسم السائق (المالك)
+const inputDriver = document.createElement('input');
+inputDriver.name = 'busDriver'; // مطابق لما في doPost
+inputDriver.value = lastBusData.driver || '';
+form.appendChild(inputDriver);
+
+// 4. رقم اللوحة (الرمز)
+const inputPlate = document.createElement('input');
+inputPlate.name = 'busPlate'; // مطابق لما في doPost
+inputPlate.value = lastBusData.plate || '';
+form.appendChild(inputPlate);
+
+// 5. الإحداثيات
+const inputCoords = document.createElement('input');
+inputCoords.name = 'busCoords'; // مطابق لما في doPost
+inputCoords.value = lastBusData.coords || '';
+form.appendChild(inputCoords);
+
+// 6. التوقيع (أهم جزء)
+const inputSig = document.createElement('input');
+inputSig.name = 'signature'; // مطابق لما في doPost
+inputSig.value = sigImage;
+form.appendChild(inputSig);
+
+document.body.appendChild(form);
+form.submit();
 
     // بما أننا أرسلنا عبر Form، سنفترض النجاح بعد ثانيتين أو ننتظر رد الـ iframe
     setTimeout(() => {
@@ -815,5 +840,6 @@ window.addEventListener('resize', () => {
   }
 });
 </script>
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 </body>
 </html>
