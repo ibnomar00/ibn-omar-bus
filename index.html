@@ -344,7 +344,7 @@
   <img src="https://drive.google.com/thumbnail?id=15lbxlFlJwGPu4SvMuVYa2JrxFFHBtFko&sz=w500" 
        alt="شعار المدرسة"
        onerror="this.style.display='none'">
-  <h1>🚌 نظام حضور الحافلات الذكي</h1>
+  <h1>?? نظام حضور الحافلات الذكي</h1>
   <p>مدرسة عبدالله بن عمر</p>
 </div>
 
@@ -366,7 +366,7 @@
   </div>
   <div class="step-line" id="line3"></div>
   <div class="step" id="step4">
-    <div class="step-dot">✓</div>
+    <div class="step-dot">?</div>
     <div class="step-label">تم</div>
   </div>
 </div>
@@ -377,7 +377,7 @@
   <!-- STEP 1: SCANNER -->
   <div id="scannerSection">
     <div class="card">
-      <div class="card-header">📷 امسح رمز QR الخاص بالحافلة</div>
+      <div class="card-header">?? امسح رمز QR الخاص بالحافلة</div>
       <div class="card-body">
         <div id="reader"></div>
         <p class="scanner-hint">وجّه الكاميرا نحو رمز QR المثبت على الحافلة<br>سيتم المسح تلقائياً</p>
@@ -389,37 +389,37 @@
   <!-- STEP 2: BUS INFO + LOCATION -->
   <div id="busInfoSection">
     <div class="card">
-      <div class="card-header">🚌 تفاصيل الحافلة</div>
+      <div class="card-header">?? تفاصيل الحافلة</div>
       <div class="card-body">
         <div class="info-row">
-          <div class="info-icon">👤</div>
+          <div class="info-icon">??</div>
           <div>
             <div class="info-label">اسم السائق</div>
             <div class="info-value" id="dName">—</div>
           </div>
         </div>
         <div class="info-row">
-          <div class="info-icon">🔢</div>
+          <div class="info-icon">??</div>
           <div>
             <div class="info-label">رقم الحافلة</div>
             <div class="info-value" id="bId">—</div>
           </div>
         </div>
         <div class="info-row">
-          <div class="info-icon">🪪</div>
+          <div class="info-icon">??</div>
           <div>
             <div class="info-label">رقم اللوحة</div>
             <div class="info-value" id="pNum">—</div>
           </div>
         </div>
         <div class="location-badge">
-          <span>✅</span>
+          <span>?</span>
           <span>تم التحقق: الحافلة داخل نطاق المدرسة</span>
         </div>
       </div>
     </div>
     <button class="btn-primary" onclick="goToSignature()">
-      ✍️ المتابعة للتوقيع
+      ?? المتابعة للتوقيع
     </button>
     <div id="busStatus" class="status-msg"></div>
   </div>
@@ -427,7 +427,7 @@
   <!-- STEP 3: SIGNATURE -->
   <div id="signatureSection">
     <div class="card">
-      <div class="card-header">✍️ توقيع السائق</div>
+      <div class="card-header">?? توقيع السائق</div>
       <div class="card-body">
         <p style="color:#666; font-size:0.88em; margin-bottom:12px; line-height:1.6;">
           يرجى التوقيع بخط اليد في المربع أدناه للتأكيد على تسجيل الحضور
@@ -437,27 +437,27 @@
           <div class="sig-watermark">توقيع السائق</div>
         </div>
         <div class="sig-actions">
-          <button class="btn-clear" onclick="clearSignature()">🗑️ مسح التوقيع</button>
+          <button class="btn-clear" onclick="clearSignature()">??? مسح التوقيع</button>
         </div>
       </div>
     </div>
 
     <button class="btn-success" id="submitBtn" onclick="finalSubmit()">
-      ✅ تأكيد الحضور وإرسال التوقيع
+      ? تأكيد الحضور وإرسال التوقيع
     </button>
     <div id="sigStatus" class="status-msg"></div>
   </div>
 
   <!-- STEP 4: SUCCESS -->
   <div id="successSection">
-    <div class="success-icon">🎉</div>
+    <div class="success-icon">??</div>
     <div class="success-title">تم تسجيل الحضور بنجاح!</div>
     <div class="success-sub">
       تم تسجيل حضور الحافلة وتوقيع السائق في سجلات المدرسة
     </div>
     <div class="success-time" id="successTime"></div>
     <br>
-    <button class="btn-restart" onclick="restartApp()">🔄 تسجيل حافلة أخرى</button>
+    <button class="btn-restart" onclick="restartApp()">?? تسجيل حافلة أخرى</button>
   </div>
 
 </div>
@@ -493,7 +493,7 @@ window.onload = function() {
 // 1. QR SCANNER
 // =============================================
 async function startScanner() {
-  showStatus('scanStatus', 'info', '📷 جاري تشغيل الكاميرا...');
+  showStatus('scanStatus', 'info', '?? جاري تشغيل الكاميرا...');
   
   try {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -524,7 +524,7 @@ async function startScanner() {
     if (msg.includes("NotAllowed") || msg.includes("Permission")) {
       msg = "يجب السماح للمتصفح باستخدام الكاميرا. تحقق من إعدادات المتصفح.";
     }
-    showStatus('scanStatus', 'error', '⚠️ ' + msg);
+    showStatus('scanStatus', 'error', '?? ' + msg);
   }
 }
 
@@ -532,7 +532,7 @@ async function onQRSuccess(decodedText) {
   if (html5QrCode) {
     try { await html5QrCode.stop(); } catch(e) {}
   }
-  showStatus('scanStatus', 'info', '📡 جاري التحقق من الموقع والحافلة...');
+  showStatus('scanStatus', 'info', '?? جاري التحقق من الموقع والحافلة...');
   verifyLocationAndBus(decodedText);
 }
 
@@ -541,14 +541,14 @@ async function onQRSuccess(decodedText) {
 // =============================================
 function verifyLocationAndBus(busId) {
   if (!navigator.geolocation) {
-    showStatus('scanStatus', 'error', '⚠️ المتصفح لا يدعم خدمة الموقع.');
+    showStatus('scanStatus', 'error', '?? المتصفح لا يدعم خدمة الموقع.');
     return;
   }
 
   navigator.geolocation.getCurrentPosition(
     pos => fetchBusData(busId, pos.coords.latitude, pos.coords.longitude),
     err => {
-      showStatus('scanStatus', 'error', '📍 يجب تفعيل خدمة الموقع (GPS) للمتابعة.');
+      showStatus('scanStatus', 'error', '?? يجب تفعيل خدمة الموقع (GPS) للمتابعة.');
       startScanner(); // إعادة المسح
     },
     { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
@@ -581,7 +581,7 @@ async function fetchBusData(busId, lat, lng) {
       lastBusData = data.bus;
       showBusInfo(data.bus);
     } else {
-      showStatus('scanStatus', 'error', '❌ ' + (data.message || "فشل التحقق."));
+      showStatus('scanStatus', 'error', '? ' + (data.message || "فشل التحقق."));
       setTimeout(startScanner, 3000);
     }
   } catch (err) {
@@ -589,7 +589,7 @@ async function fetchBusData(busId, lat, lng) {
     console.error("CORS Error detected, retrying with direct link...");
     
     // هذا "حل بديل" ذكي: إذا تعذر الاتصال المباشر، نخبر المستخدم بالرسالة الصحيحة
-    showStatus('scanStatus', 'error', '🔌 عذراً، يجب تحديث "نشر" (Deploy) نظام جوجل واختيار Anyone.');
+    showStatus('scanStatus', 'error', '?? عذراً، يجب تحديث "نشر" (Deploy) نظام جوجل واختيار Anyone.');
     
     // ملاحظة تقنية: إذا قمت بتحديث النشر في جوجل كما شرحت لك سابقاً، سيعمل الجزء العلوي بنجاح
     setTimeout(startScanner, 5000);
@@ -709,7 +709,7 @@ function getSignatureDataURL() {
 // =============================================
 async function finalSubmit() {
   if (signatureEmpty) {
-    showStatus('sigStatus', 'error', '✏️ يرجى التوقيع أولاً قبل الإرسال.');
+    showStatus('sigStatus', 'error', '?? يرجى التوقيع أولاً قبل الإرسال.');
     return;
   }
 
@@ -771,7 +771,7 @@ form.submit();
     }, 2000);
 
   } catch (err) {
-    showStatus('sigStatus', 'error', '🔌 تعذر الاتصال. حاول مجدداً.');
+    showStatus('sigStatus', 'error', '?? تعذر الاتصال. حاول مجدداً.');
     btn.disabled = false;
   }
 }
