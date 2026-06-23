@@ -720,7 +720,12 @@ async function finalSubmit() {
   try {
     const sigImage = getSignatureDataURL();
 
-    // ✅ استخدام FormData بدلاً من JSON أو GET
+    // ===== رسائل التصحيح =====
+    console.log('📸 التوقيع قبل الإرسال:', sigImage ? 'موجود ✅' : 'غير موجود ❌');
+    console.log('📸 طول التوقيع:', sigImage ? sigImage.length : 0);
+    console.log('📸 أول 100 حرف:', sigImage ? sigImage.substring(0, 100) : 'لا يوجد');
+
+    // ✅ استخدام FormData
     const formData = new FormData();
     formData.append('action', 'confirmBusAttendance');
     formData.append('busId', lastBusData.id || '');
@@ -729,13 +734,17 @@ async function finalSubmit() {
     formData.append('busCoords', lastBusData.coords || '');
     formData.append('signature', sigImage);
 
+    // ✅ إرسال FormData
     const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       mode: 'cors',
-      body: formData  // ← إرسال FormData بدلاً من JSON
+      body: formData
     });
 
     const data = await res.json();
+
+    // ===== رسالة تصحيح للاستجابة =====
+    console.log('📊 استجابة السيرفر:', data);
 
     if (data.success) {
       showSuccessScreen();
