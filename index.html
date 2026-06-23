@@ -468,7 +468,7 @@
 // =============================================
 // الإعدادات - عدّل هذه القيمة فقط
 // =============================================
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYHX9e69ZO1ff7fVj4LjLRsKrn1llTgVQrbx3vxiTMJkTPxzYEeH4ZFCoXI1ZC0dliA/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOZvpkEI6HWYKLwmzJznTZh7Sha94I4w0bhkxfnHR9uD1hN7uqraGaGiB-z_PrirZTdQ/exec";
 // استبدل YOUR_DEPLOYMENT_ID بمعرف نشر Web App الخاص بك
 
 // =============================================
@@ -720,24 +720,21 @@ async function finalSubmit() {
   try {
     const sigImage = getSignatureDataURL();
 
-    // ✅ استخدام fetch بدلاً من form
-    const payload = {
+    // ✅ استخدام GET بدلاً من POST
+    const params = new URLSearchParams({
       action: 'confirmBusAttendance',
       busId: lastBusData.id || '',
       busDriver: lastBusData.driver || '',
       busPlate: lastBusData.plate || '',
       busCoords: lastBusData.coords || '',
       signature: sigImage
-    };
+    });
 
-    const params = new URLSearchParams(payload);
     const finalUrl = `${APPS_SCRIPT_URL}?${params.toString()}`;
 
     const res = await fetch(finalUrl, {
-      method: 'POST',
-      mode: 'cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      method: 'GET',  // ← تغيير إلى GET
+      mode: 'cors'
     });
 
     const data = await res.json();
