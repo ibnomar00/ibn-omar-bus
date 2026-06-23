@@ -720,21 +720,19 @@ async function finalSubmit() {
   try {
     const sigImage = getSignatureDataURL();
 
-    // ✅ استخدام GET بدلاً من POST
-    const params = new URLSearchParams({
-      action: 'confirmBusAttendance',
-      busId: lastBusData.id || '',
-      busDriver: lastBusData.driver || '',
-      busPlate: lastBusData.plate || '',
-      busCoords: lastBusData.coords || '',
-      signature: sigImage
-    });
+    // ✅ استخدام FormData بدلاً من JSON أو GET
+    const formData = new FormData();
+    formData.append('action', 'confirmBusAttendance');
+    formData.append('busId', lastBusData.id || '');
+    formData.append('busDriver', lastBusData.driver || '');
+    formData.append('busPlate', lastBusData.plate || '');
+    formData.append('busCoords', lastBusData.coords || '');
+    formData.append('signature', sigImage);
 
-    const finalUrl = `${APPS_SCRIPT_URL}?${params.toString()}`;
-
-    const res = await fetch(finalUrl, {
-      method: 'GET',  // ← تغيير إلى GET
-      mode: 'cors'
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'cors',
+      body: formData  // ← إرسال FormData بدلاً من JSON
     });
 
     const data = await res.json();
