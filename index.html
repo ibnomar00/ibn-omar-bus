@@ -468,7 +468,7 @@
 // =============================================
 // الإعدادات - عدّل هذه القيمة فقط
 // =============================================
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgohSlMQSRbwY0cL3OlIx3ntY4ostCFH3_ocKWDX-O8SyqvazObcgesEU_iXbhoDX0Fw/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOZvpkEI6HWYKLwmzJznTZh7Sha94I4w0bhkxfnHR9uD1hN7uqraGaGiB-z_PrirZTdQ/exec";
 // استبدل YOUR_DEPLOYMENT_ID بمعرف نشر Web App الخاص بك
 
 // =============================================
@@ -709,7 +709,7 @@ function getSignatureDataURL() {
 // =============================================
 async function finalSubmit() {
   if (signatureEmpty) {
-    showStatus('sigStatus', 'error', '?? يرجى التوقيع أولاً قبل الإرسال.');
+    showStatus('sigStatus', 'error', '✏️ يرجى التوقيع أولاً قبل الإرسال.');
     return;
   }
 
@@ -718,61 +718,43 @@ async function finalSubmit() {
   btn.innerHTML = '<span class="spinner"></span> جاري إرسال البيانات...';
 
   try {
-   const sigImage = getSignatureDataURL();
+    const sigImage = getSignatureDataURL();
 
-   const form = document.createElement('form');
-   form.method = 'POST';
-   form.action = APPS_SCRIPT_URL;
-   form.target = 'hidden_iframe';
+    // ✅ استخدام fetch بدلاً من form
+    const payload = {
+      action: 'confirmBusAttendance',
+      busId: lastBusData.id || '',
+      busDriver: lastBusData.driver || '',
+      busPlate: lastBusData.plate || '',
+      busCoords: lastBusData.coords || '',
+      signature: sigImage
+    };
 
-// 1. الإجراء
-const inputAction = document.createElement('input');
-inputAction.name = 'action';
-inputAction.value = 'confirmBusAttendance';
-form.appendChild(inputAction);
+    const params = new URLSearchParams(payload);
+    const finalUrl = `${APPS_SCRIPT_URL}?${params.toString()}`;
 
-// 2. رقم الحافلة
-const inputId = document.createElement('input');
-inputId.name = 'busId'; // مطابق لما في doPost
-inputId.value = lastBusData.id || '';
-form.appendChild(inputId);
+    const res = await fetch(finalUrl, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-// 3. اسم السائق (المالك)
-const inputDriver = document.createElement('input');
-inputDriver.name = 'busDriver'; // مطابق لما في doPost
-inputDriver.value = lastBusData.driver || '';
-form.appendChild(inputDriver);
+    const data = await res.json();
 
-// 4. رقم اللوحة (الرمز)
-const inputPlate = document.createElement('input');
-inputPlate.name = 'busPlate'; // مطابق لما في doPost
-inputPlate.value = lastBusData.plate || '';
-form.appendChild(inputPlate);
-
-// 5. الإحداثيات
-const inputCoords = document.createElement('input');
-inputCoords.name = 'busCoords'; // مطابق لما في doPost
-inputCoords.value = lastBusData.coords || '';
-form.appendChild(inputCoords);
-
-// 6. التوقيع (أهم جزء)
-const inputSig = document.createElement('input');
-inputSig.name = 'signature'; // مطابق لما في doPost
-inputSig.value = sigImage;
-form.appendChild(inputSig);
-
-document.body.appendChild(form);
-form.submit();
-
-    // بما أننا أرسلنا عبر Form، سنفترض النجاح بعد ثانيتين أو ننتظر رد الـ iframe
-    setTimeout(() => {
+    if (data.success) {
       showSuccessScreen();
-      document.body.removeChild(form);
-    }, 2000);
+    } else {
+      showStatus('sigStatus', 'error', '❌ ' + (data.message || "فشل في التسجيل."));
+      btn.disabled = false;
+      btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
+    }
 
   } catch (err) {
-    showStatus('sigStatus', 'error', '?? تعذر الاتصال. حاول مجدداً.');
+    console.error("❌ خطأ في الإرسال:", err);
+    showStatus('sigStatus', 'error', '🔌 تعذر الاتصال. حاول مجدداً.');
     btn.disabled = false;
+    btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
   }
 }
 
