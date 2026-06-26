@@ -707,58 +707,58 @@ function getSignatureDataURL() {
 // =============================================
 // 5. FINAL SUBMIT
 // =============================================
+// ===== [ كود الواجهة المطور والمضمون لـ JSON ] =====
 async function finalSubmit() {
   if (signatureEmpty) {
-    showStatus('sigStatus', 'error', '✏️ يرجى التوقيع أولاً قبل الإرسال.');
+    showStatus('sigStatus', 'error', '⚠️ يرجى التوقيع أولاً قبل الإرسال.'); // [cite: 123]
     return;
   }
 
   const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> جاري إرسال البيانات...';
+  btn.disabled = true; // 
+  btn.innerHTML = '<span class="spinner"></span> جاري إرسال البيانات...'; // 
 
   try {
-    const sigImage = getSignatureDataURL();
+    const sigImage = getSignatureDataURL(); // [cite: 125]
 
-    // ===== رسائل التصحيح =====
-    console.log('📸 التوقيع قبل الإرسال:', sigImage ? 'موجود ✅' : 'غير موجود ❌');
-    console.log('📸 طول التوقيع:', sigImage ? sigImage.length : 0);
-    console.log('📸 أول 100 حرف:', sigImage ? sigImage.substring(0, 100) : 'لا يوجد');
+    console.log('📝 التوقيع جاهز للإرسال، الطول:', sigImage ? sigImage.length : 0); // [cite: 126]
 
-    // ✅ استخدام FormData
-    const formData = new FormData();
-    formData.append('action', 'confirmBusAttendance');
-    formData.append('busId', lastBusData.id || '');
-    formData.append('busDriver', lastBusData.driver || '');
-    formData.append('busPlate', lastBusData.plate || '');
-    formData.append('busCoords', lastBusData.coords || '');
-    formData.append('signature', sigImage);
+    // بناء كائن البيانات كـ JSON عادي وليس FormData
+    const payload = {
+      action: 'confirmBusAttendance',
+      busId: lastBusData.id || '', // [cite: 127]
+      busDriver: lastBusData.driver || '', // [cite: 127]
+      busPlate: lastBusData.plate || '', // [cite: 128]
+      busCoords: lastBusData.coords || '', // [cite: 128]
+      signature: sigImage // إرسال نص التوقيع الكامل بأمان [cite: 128]
+    };
 
-    // ✅ إرسال FormData
+    // إرسال الطلب بصيغة JSON نصية صريحة
     const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      mode: 'cors',
-      body: formData
+      mode: 'cors', // 
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8' // نستخدم text/plain لتجنب مشاكل الـ CORS المُعقدة مع المعاينة
+      },
+      body: JSON.stringify(payload) // تحويل الكائن إلى نص كامل
     });
 
-    const data = await res.json();
+    const data = await res.json(); // 
+    console.log('📥 استجابة السيرفر المباشرة:', data); // 
 
-    // ===== رسالة تصحيح للاستجابة =====
-    console.log('📊 استجابة السيرفر:', data);
-
-    if (data.success) {
-      showSuccessScreen();
+    if (data.success) { // [cite: 131]
+      showSuccessScreen(); // [cite: 131]
     } else {
-      showStatus('sigStatus', 'error', '❌ ' + (data.message || "فشل في التسجيل."));
-      btn.disabled = false;
-      btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
+      showStatus('sigStatus', 'error', '❌ ' + (data.message || "فشل في التسجيل.")); // [cite: 131]
+      btn.disabled = false; // [cite: 132]
+      btn.innerHTML = '❌ تأكيد الحضور وإرسال التوقيع'; // [cite: 132]
     }
 
   } catch (err) {
-    console.error("❌ خطأ في الإرسال:", err);
-    showStatus('sigStatus', 'error', '🔌 تعذر الاتصال. حاول مجدداً.');
-    btn.disabled = false;
-    btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
+    console.error("❌ خطأ أثناء إرسال البيانات:", err); // [cite: 133]
+    showStatus('sigStatus', 'error', '⚠️ تعذر الاتصال بالسيرفر. حاول مجدداً.'); // [cite: 134]
+    btn.disabled = false; // [cite: 134]
+    btn.innerHTML = '❌ تأكيد الحضور وإرسال التوقيع'; // [cite: 134]
   }
 }
 
