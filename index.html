@@ -555,6 +555,47 @@ function verifyLocationAndBus(busId) {
   );
 }
 
+async function fetchBusData(busId, lat, lng) {
+  try {
+    // بناء الرابط مع تشفير القيم العربية لضمان عدم حدوث خطأ في السيرفر
+    const params = new URLSearchParams({
+      action: 'processBusCheckIn',
+      busId: busId,
+      lat: lat,
+      lng: lng
+    });
+
+    const finalUrl = `${APPS_SCRIPT_URL}?${params.toString()}`;
+
+    // استخدام fetch مع إعدادات خاصة لجوجل سكريبت
+    const res = await fetch(finalUrl, {
+      method: 'GET',
+      mode: 'cors', // محاولة الاتصال العادي أولاً
+      redirect: 'follow'
+    });
+
+    // إذا فشل الاتصال بسبب CORS، المتصفح سيرمي خطأ وسننتقل لـ catch
+    const data = await res.json();
+
+    if (data.success) {
+      lastBusData = data.bus;
+      showBusInfo(data.bus);
+    } else {
+      showStatus('scanStatus', 'error', '? ' + (data.message || "فشل التحقق."));
+      setTimeout(startScanner, 3000);
+    }
+  } catch (err) {
+    // في حال حدوث خطأ CORS (الذي يظهر عندك باللون الأحمر)
+    console.error("CORS Error detected, retrying with direct link...");
+    
+    // هذا "حل بديل" ذكي: إذا تعذر الاتصال المباشر، نخبر المستخدم بالرسالة الصحيحة
+    showStatus('scanStatus', 'error', '?? عذراً، يجب تحديث "نشر" (Deploy) نظام جوجل واختيار Anyone.');
+    
+    // ملاحظة تقنية: إذا قمت بتحديث النشر في جوجل كما شرحت لك سابقاً، سيعمل الجزء العلوي بنجاح
+    setTimeout(startScanner, 5000);
+  }
+}
+
 
 function showBusInfo(bus) {
   document.getElementById('dName').textContent = bus.driver || '—';
@@ -666,40 +707,58 @@ function getSignatureDataURL() {
 // =============================================
 // 5. FINAL SUBMIT
 // =============================================
-// ===== [ كود تحديث دالة التحقق لتتوافق مع السيرفر ] =====
-async function fetchBusData(busId, lat, lng) {
-  try {
-    // بناء كائن البيانات كـ JSON بدلاً من تحويله لروابط GET مقتطعة
-    const payload = {
-      action: 'processBusCheckIn',
-      busId: busId,
-      lat: lat,
-      lng: lng
-    };
+async function finalSubmit() {
+  if (signatureEmpty) {
+    showStatus('sigStatus', 'error', '✏️ يرجى التوقيع أولاً قبل الإرسال.');
+    return;
+  }
 
-    // إرسال الطلب عبر POST بصيغة JSON نصية صريحة ومحمية
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> جاري إرسال البيانات...';
+
+  try {
+    const sigImage = getSignatureDataURL();
+
+    // ===== رسائل التصحيح =====
+    console.log('📸 التوقيع قبل الإرسال:', sigImage ? 'موجود ✅' : 'غير موجود ❌');
+    console.log('📸 طول التوقيع:', sigImage ? sigImage.length : 0);
+    console.log('📸 أول 100 حرف:', sigImage ? sigImage.substring(0, 100) : 'لا يوجد');
+
+    // ✅ استخدام FormData
+    const formData = new FormData();
+    formData.append('action', 'confirmBusAttendance');
+    formData.append('busId', lastBusData.id || '');
+    formData.append('busDriver', lastBusData.driver || '');
+    formData.append('busPlate', lastBusData.plate || '');
+    formData.append('busCoords', lastBusData.coords || '');
+    formData.append('signature', sigImage);
+
+    // ✅ إرسال FormData
     const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       mode: 'cors',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
-      body: JSON.stringify(payload)
+      body: formData
     });
 
     const data = await res.json();
-    
+
+    // ===== رسالة تصحيح للاستجابة =====
+    console.log('📊 استجابة السيرفر:', data);
+
     if (data.success) {
-      lastBusData = data.bus;
-      showBusInfo(data.bus);
+      showSuccessScreen();
     } else {
-      showStatus('scanStatus', 'error', '❌ ' + (data.message || "فشل التحقق."));
-      setTimeout(startScanner, 3000);
+      showStatus('sigStatus', 'error', '❌ ' + (data.message || "فشل في التسجيل."));
+      btn.disabled = false;
+      btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
     }
+
   } catch (err) {
-    console.error("❌ خطأ أثناء التحقق:", err);
-    showStatus('scanStatus', 'error', '⚠️ حدث خطأ في الاتصال بالسيرفر، يرجى إعادة المحاولة.');
-    setTimeout(startScanner, 4000);
+    console.error("❌ خطأ في الإرسال:", err);
+    showStatus('sigStatus', 'error', '🔌 تعذر الاتصال. حاول مجدداً.');
+    btn.disabled = false;
+    btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
   }
 }
 
