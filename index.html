@@ -588,9 +588,6 @@ async function fetchBusData(busId, lat, lng) {
     // في حال حدوث خطأ CORS (الذي يظهر عندك باللون الأحمر)
     console.error("CORS Error detected, retrying with direct link...");
     
-    // هذا "حل بديل" ذكي: إذا تعذر الاتصال المباشر، نخبر المستخدم بالرسالة الصحيحة
-    showStatus('scanStatus', 'error', '?? عذراً، يجب تحديث "نشر" (Deploy) نظام جوجل واختيار Anyone.');
-    
     // ملاحظة تقنية: إذا قمت بتحديث النشر في جوجل كما شرحت لك سابقاً، سيعمل الجزء العلوي بنجاح
     setTimeout(startScanner, 5000);
   }
