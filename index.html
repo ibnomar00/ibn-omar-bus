@@ -468,7 +468,7 @@
 // =============================================
 // الإعدادات - عدّل هذه القيمة فقط
 // =============================================
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYHX9e69ZO1ff7fVj4LjLRsKrn1llTgVQrbx3vxiTMJkTPxzYEeH4ZFCoXI1ZC0dliA/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOZvpkEI6HWYKLwmzJznTZh7Sha94I4w0bhkxfnHR9uD1hN7uqraGaGiB-z_PrirZTdQ/exec";
 // استبدل YOUR_DEPLOYMENT_ID بمعرف نشر Web App الخاص بك
 
 // =============================================
@@ -709,7 +709,7 @@ function getSignatureDataURL() {
 // =============================================
 async function finalSubmit() {
   if (signatureEmpty) {
-    showStatus('sigStatus', 'error', '✏️ يرجى التوقيع أولاً قبل الإرسال.');
+    showStatus('sigStatus', 'error', '?? يرجى التوقيع أولاً قبل الإرسال.');
     return;
   }
 
@@ -721,11 +721,11 @@ async function finalSubmit() {
     const sigImage = getSignatureDataURL();
 
     // ===== رسائل التصحيح =====
-    console.log('📸 التوقيع قبل الإرسال:', sigImage ? 'موجود ✅' : 'غير موجود ❌');
-    console.log('📸 طول التوقيع:', sigImage ? sigImage.length : 0);
-    console.log('📸 أول 100 حرف:', sigImage ? sigImage.substring(0, 100) : 'لا يوجد');
+    console.log('?? التوقيع قبل الإرسال:', sigImage ? 'موجود ?' : 'غير موجود ?');
+    console.log('?? طول التوقيع:', sigImage ? sigImage.length : 0);
+    console.log('?? أول 100 حرف:', sigImage ? sigImage.substring(0, 100) : 'لا يوجد');
 
-    // ✅ استخدام FormData
+    // ? استخدام FormData
     const formData = new FormData();
     formData.append('action', 'confirmBusAttendance');
     formData.append('busId', lastBusData.id || '');
@@ -734,7 +734,7 @@ async function finalSubmit() {
     formData.append('busCoords', lastBusData.coords || '');
     formData.append('signature', sigImage);
 
-    // ✅ إرسال FormData
+    // ? إرسال FormData
     const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       mode: 'cors',
@@ -744,21 +744,21 @@ async function finalSubmit() {
     const data = await res.json();
 
     // ===== رسالة تصحيح للاستجابة =====
-    console.log('📊 استجابة السيرفر:', data);
+    console.log('?? استجابة السيرفر:', data);
 
     if (data.success) {
       showSuccessScreen();
     } else {
-      showStatus('sigStatus', 'error', '❌ ' + (data.message || "فشل في التسجيل."));
+      showStatus('sigStatus', 'error', '? ' + (data.message || "فشل في التسجيل."));
       btn.disabled = false;
-      btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
+      btn.innerHTML = '? تأكيد الحضور وإرسال التوقيع';
     }
 
   } catch (err) {
-    console.error("❌ خطأ في الإرسال:", err);
-    showStatus('sigStatus', 'error', '🔌 تعذر الاتصال. حاول مجدداً.');
+    console.error("? خطأ في الإرسال:", err);
+    showStatus('sigStatus', 'error', '?? تعذر الاتصال. حاول مجدداً.');
     btn.disabled = false;
-    btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
+    btn.innerHTML = '? تأكيد الحضور وإرسال التوقيع';
   }
 }
 
