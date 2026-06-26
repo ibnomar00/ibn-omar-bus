@@ -555,47 +555,6 @@ function verifyLocationAndBus(busId) {
   );
 }
 
-async function fetchBusData(busId, lat, lng) {
-  try {
-    // بناء الرابط مع تشفير القيم العربية لضمان عدم حدوث خطأ في السيرفر
-    const params = new URLSearchParams({
-      action: 'processBusCheckIn',
-      busId: busId,
-      lat: lat,
-      lng: lng
-    });
-
-    const finalUrl = `${APPS_SCRIPT_URL}?${params.toString()}`;
-
-    // استخدام fetch مع إعدادات خاصة لجوجل سكريبت
-    const res = await fetch(finalUrl, {
-      method: 'GET',
-      mode: 'cors', // محاولة الاتصال العادي أولاً
-      redirect: 'follow'
-    });
-
-    // إذا فشل الاتصال بسبب CORS، المتصفح سيرمي خطأ وسننتقل لـ catch
-    const data = await res.json();
-
-    if (data.success) {
-      lastBusData = data.bus;
-      showBusInfo(data.bus);
-    } else {
-      showStatus('scanStatus', 'error', '? ' + (data.message || "فشل التحقق."));
-      setTimeout(startScanner, 3000);
-    }
-  } catch (err) {
-    // في حال حدوث خطأ CORS (الذي يظهر عندك باللون الأحمر)
-    console.error("CORS Error detected, retrying with direct link...");
-    
-    // هذا "حل بديل" ذكي: إذا تعذر الاتصال المباشر، نخبر المستخدم بالرسالة الصحيحة
-    showStatus('scanStatus', 'error', '?? عذراً، يجب تحديث "نشر" (Deploy) نظام جوجل واختيار Anyone.');
-    
-    // ملاحظة تقنية: إذا قمت بتحديث النشر في جوجل كما شرحت لك سابقاً، سيعمل الجزء العلوي بنجاح
-    setTimeout(startScanner, 5000);
-  }
-}
-
 
 function showBusInfo(bus) {
   document.getElementById('dName').textContent = bus.driver || '—';
@@ -707,7 +666,6 @@ function getSignatureDataURL() {
 // =============================================
 // 5. FINAL SUBMIT
 // =============================================
-// ===== [ كود الواجهة المطور والمضمون لـ JSON ] =====
 // ===== [ كود تحديث دالة التحقق لتتوافق مع السيرفر ] =====
 async function fetchBusData(busId, lat, lng) {
   try {
