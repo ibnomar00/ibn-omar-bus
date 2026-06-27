@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>نظام حضور الحافلات - ابن عمر</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
@@ -59,7 +60,7 @@
       border-radius: 50%;
     }
     .header img { width: 70px; margin-bottom: 8px; border-radius: 12px; }
-    .header h1 { font-size: 1.3em; font-weight: 800; letter-spacing: 0.3px; }
+    .header h1 { font-size: 1.3em; font-weight: 800; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .header p { font-size: 0.82em; opacity: 0.8; margin-top: 2px; }
 
     /* ===== STEPS INDICATOR ===== */
@@ -156,7 +157,18 @@
       gap: 10px;
     }
     .info-row:last-child { border-bottom: none; }
-    .info-icon { font-size: 1.3em; width: 32px; text-align: center; }
+    .info-icon {
+      font-size: 1.1em;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--peru);
+      background: rgba(201,140,60,0.1);
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
     .info-label { font-size: 0.78em; color: #999; font-weight: 500; }
     .info-value { font-size: 1em; color: var(--rhino); font-weight: 700; }
 
@@ -219,6 +231,10 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
     .btn-clear:hover { background: #ede8da; }
 
@@ -269,7 +285,11 @@
 
     /* ===== SUCCESS SCREEN ===== */
     #successSection { display: none; text-align: center; padding: 30px 20px; }
-    .success-icon { font-size: 5em; animation: popIn 0.5s ease; }
+    .success-icon {
+      font-size: 4.5em;
+      color: var(--success);
+      animation: popIn 0.5s ease;
+    }
     @keyframes popIn {
       0% { transform: scale(0.3); opacity: 0; }
       70% { transform: scale(1.15); }
@@ -299,6 +319,9 @@
       cursor: pointer;
       margin-top: 20px;
       transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
     .btn-restart:hover { background: var(--rhino-light); }
 
@@ -341,10 +364,10 @@
 
 <!-- HEADER -->
 <div class="header">
-  <img src="https://drive.google.com/thumbnail?id=15lbxlFlJwGPu4SvMuVYa2JrxFFHBtFko&sz=w500" 
+  <img src="https://drive.google.com/thumbnail?id=15lbxlFlJwGPu4SvMuVYa2JrxFFHBtFko&sz=w500"
        alt="شعار المدرسة"
        onerror="this.style.display='none'">
-  <h1>?? نظام حضور الحافلات الذكي</h1>
+  <h1><i class="fas fa-bus"></i> نظام حضور الحافلات الذكي</h1>
   <p>مدرسة عبدالله بن عمر</p>
 </div>
 
@@ -366,7 +389,7 @@
   </div>
   <div class="step-line" id="line3"></div>
   <div class="step" id="step4">
-    <div class="step-dot">?</div>
+    <div class="step-dot"><i class="fas fa-check"></i></div>
     <div class="step-label">تم</div>
   </div>
 </div>
@@ -377,7 +400,7 @@
   <!-- STEP 1: SCANNER -->
   <div id="scannerSection">
     <div class="card">
-      <div class="card-header">?? امسح رمز QR الخاص بالحافلة</div>
+      <div class="card-header"><i class="fas fa-camera"></i> امسح رمز QR الخاص بالحافلة</div>
       <div class="card-body">
         <div id="reader"></div>
         <p class="scanner-hint">وجّه الكاميرا نحو رمز QR المثبت على الحافلة<br>سيتم المسح تلقائياً</p>
@@ -389,37 +412,37 @@
   <!-- STEP 2: BUS INFO + LOCATION -->
   <div id="busInfoSection">
     <div class="card">
-      <div class="card-header">?? تفاصيل الحافلة</div>
+      <div class="card-header"><i class="fas fa-bus"></i> تفاصيل الحافلة</div>
       <div class="card-body">
         <div class="info-row">
-          <div class="info-icon">??</div>
+          <div class="info-icon"><i class="fas fa-user"></i></div>
           <div>
             <div class="info-label">اسم السائق</div>
             <div class="info-value" id="dName">—</div>
           </div>
         </div>
         <div class="info-row">
-          <div class="info-icon">??</div>
+          <div class="info-icon"><i class="fas fa-hashtag"></i></div>
           <div>
             <div class="info-label">رقم الحافلة</div>
             <div class="info-value" id="bId">—</div>
           </div>
         </div>
         <div class="info-row">
-          <div class="info-icon">??</div>
+          <div class="info-icon"><i class="fas fa-id-card"></i></div>
           <div>
             <div class="info-label">رقم اللوحة</div>
             <div class="info-value" id="pNum">—</div>
           </div>
         </div>
         <div class="location-badge">
-          <span>?</span>
+          <i class="fas fa-check-circle"></i>
           <span>تم التحقق: الحافلة داخل نطاق المدرسة</span>
         </div>
       </div>
     </div>
     <button class="btn-primary" onclick="goToSignature()">
-      ?? المتابعة للتوقيع
+      <i class="fas fa-pen-fancy"></i> المتابعة للتوقيع
     </button>
     <div id="busStatus" class="status-msg"></div>
   </div>
@@ -427,7 +450,7 @@
   <!-- STEP 3: SIGNATURE -->
   <div id="signatureSection">
     <div class="card">
-      <div class="card-header">?? توقيع السائق</div>
+      <div class="card-header"><i class="fas fa-signature"></i> توقيع السائق</div>
       <div class="card-body">
         <p style="color:#666; font-size:0.88em; margin-bottom:12px; line-height:1.6;">
           يرجى التوقيع بخط اليد في المربع أدناه للتأكيد على تسجيل الحضور
@@ -437,27 +460,27 @@
           <div class="sig-watermark">توقيع السائق</div>
         </div>
         <div class="sig-actions">
-          <button class="btn-clear" onclick="clearSignature()">??? مسح التوقيع</button>
+          <button class="btn-clear" onclick="clearSignature()"><i class="fas fa-eraser"></i> مسح التوقيع</button>
         </div>
       </div>
     </div>
 
     <button class="btn-success" id="submitBtn" onclick="finalSubmit()">
-      ? تأكيد الحضور وإرسال التوقيع
+      <i class="fas fa-check"></i> تأكيد الحضور وإرسال التوقيع
     </button>
     <div id="sigStatus" class="status-msg"></div>
   </div>
 
   <!-- STEP 4: SUCCESS -->
   <div id="successSection">
-    <div class="success-icon">??</div>
+    <div class="success-icon"><i class="fas fa-circle-check"></i></div>
     <div class="success-title">تم تسجيل الحضور بنجاح!</div>
     <div class="success-sub">
       تم تسجيل حضور الحافلة وتوقيع السائق في سجلات المدرسة
     </div>
     <div class="success-time" id="successTime"></div>
     <br>
-    <button class="btn-restart" onclick="restartApp()">?? تسجيل حافلة أخرى</button>
+    <button class="btn-restart" onclick="restartApp()"><i class="fas fa-rotate-right"></i> تسجيل حافلة أخرى</button>
   </div>
 
 </div>
@@ -469,7 +492,6 @@
 // الإعدادات - عدّل هذه القيمة فقط
 // =============================================
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYHX9e69ZO1ff7fVj4LjLRsKrn1llTgVQrbx3vxiTMJkTPxzYEeH4ZFCoXI1ZC0dliA/exec";
-// استبدل YOUR_DEPLOYMENT_ID بمعرف نشر Web App الخاص بك
 
 // =============================================
 // المتغيرات العامة
@@ -493,8 +515,8 @@ window.onload = function() {
 // 1. QR SCANNER
 // =============================================
 async function startScanner() {
-  showStatus('scanStatus', 'info', '?? جاري تشغيل الكاميرا...');
-  
+  showStatus('scanStatus', 'info', '<i class="fas fa-camera"></i> جاري تشغيل الكاميرا...');
+
   try {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       throw new Error("المتصفح لا يدعم الكاميرا. استخدم Chrome أو Safari.");
@@ -524,7 +546,7 @@ async function startScanner() {
     if (msg.includes("NotAllowed") || msg.includes("Permission")) {
       msg = "يجب السماح للمتصفح باستخدام الكاميرا. تحقق من إعدادات المتصفح.";
     }
-    showStatus('scanStatus', 'error', '?? ' + msg);
+    showStatus('scanStatus', 'error', '<i class="fas fa-triangle-exclamation"></i> ' + msg);
   }
 }
 
@@ -532,7 +554,7 @@ async function onQRSuccess(decodedText) {
   if (html5QrCode) {
     try { await html5QrCode.stop(); } catch(e) {}
   }
-  showStatus('scanStatus', 'info', '?? جاري التحقق من الموقع والحافلة...');
+  showStatus('scanStatus', 'info', '<i class="fas fa-satellite-dish"></i> جاري التحقق من الموقع والحافلة...');
   verifyLocationAndBus(decodedText);
 }
 
@@ -541,14 +563,14 @@ async function onQRSuccess(decodedText) {
 // =============================================
 function verifyLocationAndBus(busId) {
   if (!navigator.geolocation) {
-    showStatus('scanStatus', 'error', '?? المتصفح لا يدعم خدمة الموقع.');
+    showStatus('scanStatus', 'error', '<i class="fas fa-triangle-exclamation"></i> المتصفح لا يدعم خدمة الموقع.');
     return;
   }
 
   navigator.geolocation.getCurrentPosition(
     pos => fetchBusData(busId, pos.coords.latitude, pos.coords.longitude),
     err => {
-      showStatus('scanStatus', 'error', '?? يجب تفعيل خدمة الموقع (GPS) للمتابعة.');
+      showStatus('scanStatus', 'error', '<i class="fas fa-location-dot"></i> يجب تفعيل خدمة الموقع (GPS) للمتابعة.');
       startScanner(); // إعادة المسح
     },
     { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
@@ -567,35 +589,27 @@ async function fetchBusData(busId, lat, lng) {
 
     const finalUrl = `${APPS_SCRIPT_URL}?${params.toString()}`;
 
-    // استخدام fetch مع إعدادات خاصة لجوجل سكريبت
     const res = await fetch(finalUrl, {
       method: 'GET',
-      mode: 'cors', // محاولة الاتصال العادي أولاً
+      mode: 'cors',
       redirect: 'follow'
     });
 
-    // إذا فشل الاتصال بسبب CORS، المتصفح سيرمي خطأ وسننتقل لـ catch
     const data = await res.json();
 
     if (data.success) {
       lastBusData = data.bus;
       showBusInfo(data.bus);
     } else {
-      showStatus('scanStatus', 'error', '? ' + (data.message || "فشل التحقق."));
+      showStatus('scanStatus', 'error', '<i class="fas fa-circle-xmark"></i> ' + (data.message || "فشل التحقق."));
       setTimeout(startScanner, 3000);
     }
   } catch (err) {
-    // في حال حدوث خطأ CORS (الذي يظهر عندك باللون الأحمر)
     console.error("CORS Error detected, retrying with direct link...");
-    
-    // هذا "حل بديل" ذكي: إذا تعذر الاتصال المباشر، نخبر المستخدم بالرسالة الصحيحة
-    showStatus('scanStatus', 'error', '?? عذراً، يجب تحديث "نشر" (Deploy) نظام جوجل واختيار Anyone.');
-    
-    // ملاحظة تقنية: إذا قمت بتحديث النشر في جوجل كما شرحت لك سابقاً، سيعمل الجزء العلوي بنجاح
+    showStatus('scanStatus', 'error', '<i class="fas fa-triangle-exclamation"></i> عذراً، يجب تحديث "نشر" (Deploy) نظام جوجل واختيار Anyone.');
     setTimeout(startScanner, 5000);
   }
 }
-
 
 function showBusInfo(bus) {
   document.getElementById('dName').textContent = bus.driver || '—';
@@ -709,7 +723,7 @@ function getSignatureDataURL() {
 // =============================================
 async function finalSubmit() {
   if (signatureEmpty) {
-    showStatus('sigStatus', 'error', '✏️ يرجى التوقيع أولاً قبل الإرسال.');
+    showStatus('sigStatus', 'error', '<i class="fas fa-pen"></i> يرجى التوقيع أولاً قبل الإرسال.');
     return;
   }
 
@@ -720,11 +734,11 @@ async function finalSubmit() {
   try {
     const sigImage = getSignatureDataURL();
 
-    console.log('📝 التوقيع قبل الإرسال:', sigImage ? 'موجود ✅' : 'غير موجود ❌');
-    console.log('📏 طول التوقيع:', sigImage ? sigImage.length : 0);
+    // ===== رسائل التصحيح =====
+    console.log('التوقيع قبل الإرسال:', sigImage ? 'موجود' : 'غير موجود');
+    console.log('طول التوقيع:', sigImage ? sigImage.length : 0);
 
-    // ✅ استخدام URLSearchParams بدلاً من FormData
-    // FormData (multipart) يفقد أو يقطع base64 الطويل عبر Apps Script
+    // ✅ استخدام URLSearchParams (x-www-form-urlencoded) لتفادي فقدان/قطع base64 الطويل
     const params = new URLSearchParams();
     params.append('action',    'confirmBusAttendance');
     params.append('busId',     lastBusData.id     || '');
@@ -735,35 +749,29 @@ async function finalSubmit() {
 
     const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
+      mode: 'cors',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params.toString(),
       redirect: 'follow'
     });
 
-    const text = await res.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch(e) {
-      console.error('الاستجابة ليست JSON:', text.substring(0, 300));
-      throw new Error('الخادم لم يُرجع استجابة صحيحة.');
-    }
+    const data = await res.json();
 
-    console.log('📨 استجابة السيرفر:', data);
+    console.log('استجابة السيرفر:', data);
 
     if (data.success) {
       showSuccessScreen();
     } else {
-      showStatus('sigStatus', 'error', '❌ ' + (data.message || "فشل في التسجيل."));
+      showStatus('sigStatus', 'error', '<i class="fas fa-circle-xmark"></i> ' + (data.message || "فشل في التسجيل."));
       btn.disabled = false;
-      btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
+      btn.innerHTML = '<i class="fas fa-check"></i> تأكيد الحضور وإرسال التوقيع';
     }
 
   } catch (err) {
-    console.error("❌ خطأ في الإرسال:", err);
-    showStatus('sigStatus', 'error', '🔌 ' + (err.message || 'تعذر الاتصال. حاول مجدداً.'));
+    console.error("خطأ في الإرسال:", err);
+    showStatus('sigStatus', 'error', '<i class="fas fa-plug-circle-xmark"></i> تعذر الاتصال. حاول مجدداً.');
     btn.disabled = false;
-    btn.innerHTML = '✅ تأكيد الحضور وإرسال التوقيع';
+    btn.innerHTML = '<i class="fas fa-check"></i> تأكيد الحضور وإرسال التوقيع';
   }
 }
 
